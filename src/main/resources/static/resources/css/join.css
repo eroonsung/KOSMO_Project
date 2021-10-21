@@ -1,0 +1,94 @@
+@charset "UTF-8";
+
+
+body {
+    margin: 0 auto; 
+    width: fit-content;
+    
+}
+
+header, footer {
+    margin-top: 20px;
+    text-align: center;
+   
+}
+
+/* 동의 약관 */
+ul {
+    border: 1px solid gray;
+    padding: 10px;
+    list-style: none;
+    
+}
+
+
+/* 가입하기 버튼 */
+.join-btn  {
+    font-size: 16px;
+    width: 50%;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 32px;
+    color: #000000;
+    border: solid 1px rgba(0,0,0,.08);
+    background-color: #FFC846;
+}
+
+/* 취소하기 버튼 */
+.cancel-btn  {
+    font-size: 16px;
+    width: 50%;
+    border: none; 
+    border-radius: 5px;
+    padding: 8px 32px;
+    color: #FFFFFF;
+    border: solid 1px rgba(0,0,0,.08);
+    background-color: #000000;
+  
+}
+
+/* 중복체크 버튼 */
+.overlap_id , .overlap_nickname {
+	padding: 5px 5px;
+	margin-left : 7px;
+	border-radius: 5px;
+	
+}
+
+/* (선택) */
+.select_keyword {
+  font-size: 9px;
+  color:gray;
+}
+
+/* 입력양식 설정 */
+.mem_id , .mem_pwd , .re_pwd , .mem_name , .nickname , .birth_day , .gender , .email , .datepicker , .phone { 
+    width: 230px;
+    height: 37px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid #BBC5D8;
+    border-radius: 7px;
+    box-sizing: border-box;
+    font-size : 10px;
+}
+
+.memberRegForm {
+	font-size: 12px;
+	color : #000000;
+}
+
+/* placeholder 속성바꾸기 */
+::placeholder {
+  font-size : 10px;
+}
+
+.warn_txt {
+    display: none;
+    margin: 0;
+    font-size: small;
+}
+
+
+

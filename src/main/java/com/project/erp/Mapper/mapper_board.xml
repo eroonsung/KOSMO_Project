@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.erp.DAO.BoardDAO">
+	
+	<sql id="boardWhere">
+	
+			<if test="keyword1!=null and keyword1.length()>0">
+				<if test="searchStandard.equals('')">
+					and (upper(b.b_subject) like upper('%${keyword1}%')
+					or upper(m.nickname) like upper('%${keyword1}%') 
+					or upper(b.b_content) like upper('%${keyword1}%') 
+				) 
+				</if>
+				<if test="searchStandard.equals('제목')">
+					and (upper(b.b_subject) like upper('%${keyword1}%') )
+				</if>
+				<if test="searchStandard.equals('작성자')">
+					and (upper(m.nickname) like upper('%${keyword1}%') )
+				</if>
+				<if test="searchStandard.equals('제목+작성자')">
+					and (
+						upper(b.b_subject) like upper('%${keyword1}%')
+						or upper(m.nickname) like upper('%${keyword1}%') )
+				</if>
+				<if test="searchStandard.equals('내용')">
+					and (
+						upper(b.b_content) like upper('%${keyword1}%') )
+				</if>
+	    	</if>
+
+	   <if test="head_category!=null and head_category.length()>0">
+	   		and (h.head_category_no = ${head_category})
+	   </if>
+	</sql>
+
+	<select id="getBoardList" parameterType="com.project.erp.DTO.BoardSearchDTO" resultType="java.util.HashMap">
+	
+		select * 
+		from (select rownum RNUM, zxcvb.*
+		        from (
+		        	select
+					    b.b_no||'' 						 "b_no"
+					    ,h.head_category_name			"head_category"
+					    , b.b_subject                        "subject"
+					    , m.nickname	                         "writer"
+					    , b.readcount||''                  "readcount"
+					    , to_char(b.b_reg_date,'YYYY-MM-DD(DY)','nls_date_language=korean') "reg_date"
+					    , (select count(*) from b_comment bc where b.b_no = bc.b_no) "commentCnt"
+					from 
+					    board b, head_category h, member m
+					where
+						1=1
+					    and b.head_category_no = h.head_category_no
+					    and m.mem_no = b.mem_no
+					<include refid="boardWhere"/>
+		        order by 
+                    (case when h.head_category_no=1 then 1
+                    else 2 end) asc
+                    , b.b_reg_date desc
+		                )zxcvb
+		        <!-- 부등호를 태그의 시작으로 인식하기 때문에 <![CDATA[비교문 입력]]>을 사용함 -->
+		        <!-- CDATA: character data -->
+			        <![CDATA[
+			        where rownum <= ${selectPageNo * rowCntPerPage}  )
+			    	where RNUM >= ${((selectPageNo-1)*rowCntPerPage)+1}
+			        ]]>
+		        <!--  
+		        where rownum &lt;= 10)
+				where  RNUM &gt;= 1
+				-->
+	
+	</select>
+	
+	<select id="getNoticeList" resultType="java.util.HashMap">
+	select
+					    b.b_no||'' 						 "b_no"
+					    ,h.head_category_name			"head_category"
+					    , b.b_subject                        "subject"
+					    , m.nickname	                         "writer"
+					    , b.readcount||''                  "readcount"
+					    , to_char(b.b_reg_date,'YYYY-MM-DD(DY)','nls_date_language=korean') "reg_date"
+					    , (select count(*) from b_comment bc where b.b_no = bc.b_no) "commentCnt"
+					from 
+					    board b, head_category h, member m
+					where
+						1=1
+					    and b.head_category_no = h.head_category_no
+					    and m.mem_no = b.mem_no
+					    and h.head_category_name= '공지'
+					order by b.b_no desc, b.b_reg_date desc
+	</select>
+	
+	
+	<!-- ******************************************************* -->
+	<!-- 검색된 게시판 목록의 총 개수를 나타내는 select문을 내포한 select 태그 선언 -->
+	<!-- ******************************************************* -->
+	<select id="getBoardListAllCnt" parameterType="com.project.erp.DTO.BoardSearchDTO" resultType="int">
+		select 
+			count(*) 
+		from 
+		    board b, head_category h, member m
+		where
+			1=1
+		    and b.head_category_no = h.head_category_no
+		    and m.mem_no = b.mem_no
+   		    <!-- ================================================================= -->
+			<!-- <sql id="boardWhere">태그 안에 삽입된 SQL 구문 삽입하기  -->
+			<!-- ================================================================= -->
+			<include refid="boardWhere"/>
+							
+
+	</select>
+	
+	<select id="getHeadCategory" resultType="com.project.erp.DTO.BoardDTO">
+		select * from head_category
+	</select>
+	
+
+	<update id="updateReadcount" parameterType="int">
+		update board set readcount = readcount+1
+		where b_no = #{b_no}
+	</update>
+	
+	<select id="getBoard" parameterType="int" resultType="com.project.erp.DTO.BoardDTO">
+ 
+       select 
+			b.b_no					"b_no"
+			,b.mem_no				"mem_no"
+			, b.b_subject			"subject"
+			, b.b_content			"content"
+			, h.head_category_name	"head_category_name"
+			, b.readcount			"readcount"
+			, m.nickname			"nickname"
+			, to_char(b.b_reg_date,'YYYY-MM-DD(DY)','nls_date_language=korean')		"reg_date"
+			, nvl(p.picture,'')				"pic"
+			from board b, head_category h, member m, pictures p
+			where
+			    b.head_category_no = h.head_category_no(+)
+			    and m.mem_no(+) = b.mem_no
+			    and p.b_no(+) = b.b_no
+			    and b.b_no=#{b_no} 
+	</select>
+	
+	
+	<insert id="insertBoard" parameterType="com.project.erp.DTO.BoardDTO">
+	insert into board(
+		b_no
+		, b_subject
+		, b_content
+		, head_category_no
+		, readcount
+		, mem_no
+	) values(
+		(select nvl(max(b_no),0)+1 from board)
+		, #{subject}
+		, #{content}
+		, #{head_category_no}
+		, 0
+		, #{mem_no}
+	)
+	</insert>
+	
+	
+	<insert id="insertPicture" parameterType="com.project.erp.DTO.BoardDTO">
+	insert into pictures(
+		pic_no
+		, b_no
+		, picture
+	) values(
+		(select nvl(max(pic_no),0)+1 from pictures)
+		, (select max(b_no) from board)
+		, #{pic}
+	)
+	</insert>
+	<select id="getBoardCnt" parameterType="com.project.erp.DTO.BoardDTO" resultType="int">
+		select count(*) from board 
+		where b_no=#{b_no}
+	</select>
+	
+	<select id="getPic" parameterType="com.project.erp.DTO.BoardDTO" resultType="String">
+		select picture from pictures
+		where b_no=#{b_no}
+	</select>
+	
+	<delete id="deleteBoard" parameterType="com.project.erp.DTO.BoardDTO">
+		{call
+        declare
+        begin
+            delete from pictures where b_no=#{b_no};
+             delete from board where b_no=#{b_no};
+        end}
+	</delete> 
+	
+	<delete id="deletePicture" parameterType="com.project.erp.DTO.BoardDTO">
+            delete from pictures where b_no=#{b_no}
+	</delete>
+	<update id="updateBoard">
+		update board 
+		set 
+			 b_subject = #{subject}
+			,b_content = #{content}
+			,head_category_no = #{head_category_no}
+		where b_no=#{b_no}
+	</update>
+	
+	<update id="updatePicture">
+		update pictures 
+		set 
+			 picture = #{pic}
+		where b_no=#{b_no}
+	</update>
+	<insert id="upInsertPicture" parameterType="com.project.erp.DTO.BoardDTO">
+		insert into pictures(
+		pic_no
+		, b_no
+		, picture
+	) values(
+		(select nvl(max(pic_no),0)+1 from pictures)
+		, #{b_no}
+		, #{pic}
+	)
+	</insert>
+	
+	
+	<!-- 댓글 갯수 -->
+	<select id="getCommentListAllCnt" parameterType="com.project.erp.DTO.CommentDTO" resultType="int">
+		select 
+			count(*)
+		from    
+		    b_comment c , member m , board b
+		where
+			1=1
+			and c.mem_no=m.mem_no
+			and b.b_no=c.b_no
+			and c.b_no=#{b_no}
+	</select>
+	
+	<!-- 댓글 리스트 -->
+	<select id="getCommentList" parameterType="com.project.erp.DTO.CommentDTO" resultType="java.util.HashMap">
+	select * 
+		from (select rownum RNUM, zxcvb.*
+		        from (
+		select
+			c.com_no 		"com_no" 
+			,c.mem_no 		"mem_no" 
+		    ,m.nickname    "nickname"
+		    ,c.com_contents   "com_contents"
+		    ,to_char(c.com_reg_date,'yyyy-mm-dd(dy)','nls_date_language=korean') "com_reg_date"
+		from    
+		    b_comment c , member m , board b
+		where
+			1=1
+			and c.mem_no=m.mem_no
+			and b.b_no=c.b_no
+			and c.b_no=#{b_no}
+		order by
+			group_no asc
+			,to_char(com_reg_date,'yyyy-mm-dd(dy)','nls_date_language=korean')
+			
+		)zxcvb
+		<![CDATA[
+			where rownum <= ${selectPageNo * rowCntPerPage}  )
+			where RNUM >= ${((selectPageNo-1)*rowCntPerPage)+1}
+		]]>
+	</select>
+	
+	 
+	<insert id="insertComment" parameterType="com.project.erp.DTO.CommentDTO">
+		insert into b_comment(
+			com_no
+			,b_no
+			,mem_no
+			,com_contents
+			,group_no
+			,print_no
+			,print_level
+		) values(
+			(SELECT NVL(MAX(com_no), 0)+1 FROM b_comment)
+			,${b_no}
+			,${mem_no}
+			,#{com_contents}
+
+			 <if test="com_no==0">
+				,(SELECT NVL(MAX(com_no), 0)+1 FROM b_comment)
+				,0
+				,0
+			</if>
+			
+			<!-- 
+			만약에 자바의 BoardDTO 객체의 속성변수 b_no 가 0 보다 크면 , 즉 댓글쓰기 모드면 
+			그룹번호를 엄마 PK 값으로 , 출력순서 번호와 들여쓰기 레벨은 엄마꺼보다 1 더 큰 값으로 입력하기
+			-->
+			<if test="com_no>0">
+				,(SELECT group_no FROM b_comment WHERE com_no = #{com_no})       
+	   			,(SELECT print_no+1 FROM b_comment WHERE com_no = #{com_no})     
+	   			,(SELECT print_level+1 FROM b_comment WHERE com_no = #{com_no})  
+   			</if>
+		)
+	</insert> 
+	
+	<update id="updatePrintNo" parameterType="com.project.erp.DTO.CommentDTO">
+		update b_comment set print_no = print_no + 1 
+    	where 
+    		group_no = (select group_no from b_comment where com_no = #{com_no}) 
+        	and
+			print_no > (select print_no from b_comment where com_no = #{com_no})
+	</update>
+		
+	 	
+	<select id="getCommentCnt" parameterType="com.project.erp.DTO.CommentDTO" resultType="int">
+		select count(*) from b_comment where b_no=#{b_no} and com_no=#{com_no}
+	</select>
+	
+	<delete id="deleteComment" parameterType="com.project.erp.DTO.CommentDTO">
+		delete from b_comment where b_no=#{b_no} and mem_no=#{mem_no} and com_no = #{com_no}
+	</delete>
+</mapper> 
+

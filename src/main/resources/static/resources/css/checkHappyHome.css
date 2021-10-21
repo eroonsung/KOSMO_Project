@@ -1,0 +1,74 @@
+@charset "UTF-8";
+
+table{border: 1px solid black;}
+        td,th{border: 1px solid black;}
+        
+        input{
+            display: none;
+        }
+        
+        .radio_btn{
+            display: inline-block;
+            -ms-user-select: none; 
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            text-align: center;
+            line-height: 50px;
+            border: 1px solid black;
+            width: 140px;
+            height: 50px;
+            background-color:aquamarine;
+            cursor: pointer;
+        }
+        
+        table{
+            border-collapse: collapse;
+        }
+        
+        .table_btn{
+            display: block;
+            -ms-user-select: none; 
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            text-align: center;
+            line-height: 20px;
+            border: 1px solid black;
+            width: auto;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        input[type="radio"]:checked + .radio_btn {background-color: red;}
+        
+        input[type="radio"]:checked + .table_btn {background-color: red;}
+        
+        .question, .result{
+            overflow: hidden;
+            height: 0;
+            font-size: 0;
+        }
+        .newlyweds{
+            overflow: hidden;
+            height: 0;
+        }
+        
+        .q1{
+            font-size: 10pt;
+            display: block;
+            height: auto !important;
+            padding-bottom: 20px;
+            border-bottom: 1px solid lightgray;
+        }
+        
+        .on{
+            transition-duration: 0.5s;
+            font-size: 10pt;
+            height: auto !important;
+            padding-bottom: 20px;
+            border-bottom: 1px solid lightgray;
+        }
+        

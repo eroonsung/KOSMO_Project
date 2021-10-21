@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.erp.DAO.AdminDAO">
+
+	<select id="getMemberCnt" resultType="Integer">
+		select count(mem_no) from member where is_admin=0
+	</select>
+	
+	<select id="getBoardCnt" resultType="Integer">
+		select count(b_no) from board 
+	</select>
+	
+
+	
+		 
+	<select id="getOnGoingHome" resultType="Integer">
+		select count(rd.rental_detail_no)	
+		from rental r, rental_detail rd
+		where r.rental_no = rd.rental_no
+			and to_date(r.first_move_date||'01','YYYYMMDD')>=sysdate
+	</select>	
+	
+	<select id="getDoneHomeCnt" resultType="Integer">
+				select count(rd.rental_detail_no)	
+		from rental r, rental_detail rd
+		where r.rental_no = rd.rental_no
+			and sysdate>to_date(r.first_move_date||'01','YYYYMMDD')
+	</select>
+	<select id="getSupplyTypeList" resultType="com.project.erp.DTO.StaDTO">
+		select * from supply_type
+	</select>
+	
+	<select id="getlocList" resultType="com.project.erp.DTO.StaDTO">
+		select * from location
+	</select>
+</mapper> 
+

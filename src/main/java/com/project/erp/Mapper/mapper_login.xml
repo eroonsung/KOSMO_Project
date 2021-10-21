@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.erp.DAO.LoginDAO">
+
+	<select id="getLogin_idCnt" parameterType="hashmap" resultType="int">
+		select count(*) from member where mem_id=#{login_id} and mem_pwd=#{pwd}
+	</select> 
+	
+	<select id="getIs_admin" parameterType="hashmap" resultType="int">
+		select count(*) from member where mem_id=#{login_id} and is_admin='1'
+	</select> 
+	
+	
+	<!--  pwd  찾기 -->
+	<select id="getCheck_pwdCnt" parameterType="hashmap" resultType="int">
+		select count(*) from member where mem_id=#{find_id_value} and phone=#{find_phone_value} 
+		      	 and email=#{find_email_value}   
+	</select> 
+	
+	<select id="getCheckedPwd" parameterType="hashmap" resultType="String">
+		select mem_pwd from member where mem_id=#{find_id_value} and phone=#{find_phone_value}
+		      	 and email=#{find_email_value}  
+	</select> 
+	<!--  pwd  찾기 -->
+	
+	
+	
+	
+	<!--  id  찾기 -->
+	<select id="getCheck_IdCnt" parameterType="hashmap" resultType="int">
+		select count(*) from member where mem_name=#{find_name_value} and phone=#{find_phone_value} 
+		      	 and email=#{find_email_value}   
+	</select> 
+	
+	<select id="getCheckedId" parameterType="hashmap" resultType="String">
+		select mem_id from member where mem_name=#{find_name_value} and phone=#{find_phone_value}
+		      	 and email=#{find_email_value}  
+	</select> 
+	<!--  id  찾기 -->
+	
+	
+	<insert id="insertMember" parameterType="com.project.erp.DTO.MemberDTO">
+		insert into member(
+			mem_no
+			,mem_id
+			,mem_name
+			,nickname
+			,mem_pwd
+			,birth_day
+			,gender
+			,phone
+			,email
+			,is_admin
+		) values (
+			(select nvl(max(mem_no),0)+1 from member)
+			,#{mem_id} 
+			,#{mem_name}  
+			,#{nickname}
+			,#{mem_pwd} 
+			,#{birth_day}
+			,#{gender}
+			,#{phone}
+			,#{email}
+			,0	
+		)
+	</insert>
+	
+		 	 
+	<select id="checkOverlapId" parameterType="String" resultType="Integer">
+		select count(*)  from member where mem_id = #{mem_id}
+	</select>
+	
+	<select id="checkOverlapNickname" parameterType="String" resultType="Integer">
+		select count(*)  from member where nickname = #{nickname}
+	</select>
+	
+	<!-- session -->
+	
+ 	<select id="getMem_no" parameterType="hashmap" resultType="int">
+		select mem_no from member where mem_id=#{login_id}
+	</select> 
+		 
+	<select id="getNickname" parameterType="hashmap" resultType="String">
+		select nickname from member where mem_id=#{login_id}
+	</select> 	
+	
+</mapper> 
+
